@@ -23,6 +23,7 @@ import { Button, CircularProgress, Container, Dialog, Typography } from '@mui/ma
 import { auth } from '../firebase/firebase';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import styles from '../styles/landing.module.scss';
+import { useAuth } from '../firebase/auth';
 
 const REDIRECT_PAGE = './dashboard'
 
@@ -32,15 +33,27 @@ const uiConfig = {
   signInSuccessUrl: REDIRECT_PAGE,
   signInOptions: [
     EmailAuthProvider.PROVIDER_ID,
-    GoogleAuthProvider.GOOGLE_SIGN_IN_METHOD,
+    GoogleAuthProvider.PROVIDER_ID,
   ]
 }
 
 export default function Home() {
   const router = useRouter();
   const [login, setLogin] = useState(false)
+  
+  const {authUser, isLoading} = useAuth()
 
-  return (
+  // Redirect if logged in
+  useEffect(() => {
+    if(!isLoading && authUser) {
+      router.push('/dashboard')
+    }
+  }, [authUser, isLoading]);
+
+  return authUser ? (
+    <CircularProgress color="inherit" sx={{marginLeft: '50%', marginTop: '25%'}}></CircularProgress>
+  )
+  : (
     <div>
       <Head>
         <title>Expense Tracker</title>
